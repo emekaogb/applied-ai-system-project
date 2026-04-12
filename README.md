@@ -23,7 +23,9 @@ Replace this paragraph with your own summary of what your version does.
 - Algorithm Recipe: For each song, genre match is weighted 40%, mood match 30%, energy match 25%, and other attributes 10%. This system may over-prioritize genre but this is fine for a new user, and then weight can be adjusted later on. The scores that meet the given threshold will then be ranked by score (sorted descending) and the system would return the top K songs + scores. 
 
 ## Demo
-![Recommender screenshot](music_recommender_demo.png)
+![Recommender screenshot](demo/music_recommender_demo.png)
+---
+<img src="demo/alex_rec.png" alt="User1 screenshot" width="32%" /> <img src="demo/jordan_rec.png" alt="User2 screenshot" width="32%" /> <img src="demo/casey_rec.png" alt="User3 screenshot" width="32%" />
 
 ---
 
