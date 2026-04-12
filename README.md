@@ -17,17 +17,13 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+- The features I would use in my recommender system would iclude genre, mood, energy, and valence. I think danceability could also be useful for contextualizing the listening experience (workout vs relaxation), but is not as important as the others. Using artist could limit discovery so I don't want it to focus too heavily on that. 
+- UserProfile would store liked/disliked songs and listening history, along with the pre-existing info like favorite genre and favorite mood. 
+- The Recommender computes a score for each song using cosine similarity, and creates recommendations using a ranking rule (ex. basic sorting).
+- Algorithm Recipe: For each song, genre match is weighted 40%, mood match 30%, energy match 25%, and other attributes 10%. This system may over-prioritize genre but this is fine for a new user, and then weight can be adjusted later on. The scores that meet the given threshold will then be ranked by score (sorted descending) and the system would return the top K songs + scores. 
 
-Some prompts to answer:
-
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
-
-You can include a simple diagram or bullet list if helpful.
+## Demo
+![Recommender screenshot](music_recommender_demo.png)
 
 ---
 
