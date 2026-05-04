@@ -1,72 +1,92 @@
 """
-Command line runner for the Music Recommender Simulation.
+Music Recommender — CLI entry point.
 
-This file helps you quickly run and test your recommender.
-
-You will implement the functions in recommender.py:
-- load_songs
-- score_song
-- recommend_songs
+Usage:
+  python -m src.main                        # interactive mode (default user: alex)
+  python -m src.main --user jordan          # interactive mode for jordan
+  python -m src.main --demo                 # non-interactive demo (original 3-user output)
+  python -m src.main --user casey --k 3    # 3 songs per batch
 """
 
-from recommender import load_songs, recommend_songs
+import argparse
+import sys
+from pathlib import Path
+
+# Allow running as `python -m src.main` or `python src/main.py`
+sys.path.insert(0, str(Path(__file__).parent))
+
+from recommender import load_songs
+from session import load_user_profile, run_interactive_session, run_demo_session
+
+SONGS_CSV = Path(__file__).parent.parent / "data" / "songs.csv"
+
+BUILTIN_USERS = {
+    "alex": {
+        "name": "Alex",
+        "prefs": {
+            "favorite_genre": "pop",
+            "favorite_mood": "happy",
+            "target_energy": 0.8,
+            "likes_acoustic": False,
+            "_vote_counts": {"genre": {"pop": 5}, "mood": {"happy": 5}},
+            "_acoustic_score": -3,
+            "_genre_penalty": {},
+            "_mood_penalty": {},
+        },
+    },
+    "jordan": {
+        "name": "Jordan",
+        "prefs": {
+            "favorite_genre": "lofi",
+            "favorite_mood": "chill",
+            "target_energy": 0.4,
+            "likes_acoustic": True,
+            "_vote_counts": {"genre": {"lofi": 5}, "mood": {"chill": 5}},
+            "_acoustic_score": 3,
+            "_genre_penalty": {},
+            "_mood_penalty": {},
+        },
+    },
+    "casey": {
+        "name": "Casey",
+        "prefs": {
+            "favorite_genre": "rock",
+            "favorite_mood": "intense",
+            "target_energy": 0.9,
+            "likes_acoustic": False,
+            "_vote_counts": {"genre": {"rock": 5}, "mood": {"intense": 5}},
+            "_acoustic_score": -3,
+            "_genre_penalty": {},
+            "_mood_penalty": {},
+        },
+    },
+}
 
 
 def main() -> None:
-    songs = load_songs("data/songs.csv") 
+    parser = argparse.ArgumentParser(description="Music Recommender with RL feedback loop")
+    parser.add_argument(
+        "--demo", action="store_true",
+        help="Run non-interactive demo for all 3 built-in users"
+    )
+    parser.add_argument(
+        "--user", choices=list(BUILTIN_USERS.keys()), default="alex",
+        help="Which user profile to load for interactive mode (default: alex)"
+    )
+    parser.add_argument(
+        "--k", type=int, default=5,
+        help="Number of songs to recommend per batch (default: 5)"
+    )
+    args = parser.parse_args()
 
-    # Define multiple user preference profiles
-    users = [
-        {
-            "name": "Alex (Pop Energy Lover)",
-            "prefs": {
-                "favorite_genre": "pop",
-                "favorite_mood": "happy",
-                "target_energy": 0.8,
-                "likes_acoustic": False
-            }
-        },
-        {
-            "name": "Jordan (Chill Lofi Listener)",
-            "prefs": {
-                "favorite_genre": "lofi",
-                "favorite_mood": "chill",
-                "target_energy": 0.4,
-                "likes_acoustic": True
-            }
-        },
-        {
-            "name": "Casey (Rock Intensity Seeker)",
-            "prefs": {
-                "favorite_genre": "rock",
-                "favorite_mood": "intense",
-                "target_energy": 0.9,
-                "likes_acoustic": False
-            }
-        }
-    ]
+    songs = load_songs(str(SONGS_CSV))
 
-    # Generate recommendations for each user
-    for user in users:
-        name = user["name"]
-        user_prefs = user["prefs"]
-        
-        recommendations = recommend_songs(user_prefs, songs, k=5)
-
-        print("\n" + "="*60)
-        print(f"🎵 Recommendations for {name}")
-        print("="*60)
-        print(f"Preferences: {user_prefs['favorite_genre']} music with {user_prefs['favorite_mood']} mood (energy: {user_prefs['target_energy']:.1f})\n")
-        
-        for i, rec in enumerate(recommendations, 1):
-            song, score, reasons = rec
-            print(f"{i}. {song['title']} by {song['artist']}")
-            print(f"   Score: {score:.2f} | Genre: {song['genre']} | Mood: {song['mood']}")
-            print(f"   Why recommended:")
-            for reason in reasons:
-                print(f"      {reason}")
-            print()
-
+    if args.demo:
+        run_demo_session(songs)
+    else:
+        selected = BUILTIN_USERS[args.user]
+        user_prefs = load_user_profile(selected["name"], selected["prefs"])
+        run_interactive_session(selected["name"], user_prefs, songs, k=args.k)
 
 
 if __name__ == "__main__":

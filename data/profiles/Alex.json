@@ -1,0 +1,33 @@
+{
+  "favorite_genre": "pop",
+  "favorite_mood": "happy",
+  "target_energy": 0.7918,
+  "likes_acoustic": false,
+  "_vote_counts": {
+    "genre": {
+      "pop": 19,
+      "indie pop": 12,
+      "electronic": 12,
+      "synthwave": 12
+    },
+    "mood": {
+      "happy": 31,
+      "energetic": 12,
+      "moody": 12,
+      "intense": 0
+    }
+  },
+  "_acoustic_score": -18,
+  "_genre_penalty": {
+    "pop": 0.744,
+    "indie pop": 1.0,
+    "electronic": 1.0,
+    "synthwave": 1.0
+  },
+  "_mood_penalty": {
+    "happy": 1.0,
+    "intense": 0.614,
+    "energetic": 1.0,
+    "moody": 1.0
+  }
+}

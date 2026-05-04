@@ -113,9 +113,11 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     acoustic_pref = "acoustic" if user_prefs['likes_acoustic'] else "electric/produced"
     reasons.append(f"🎨 Acousticness: {float(song['acousticness']):.2f} (you prefer {acoustic_pref})")
     
-    # Calculate total weighted score
-    total_score = sum(score_components.values())
-    
+    # Apply per-genre and per-mood penalty multipliers (built up from skip history)
+    genre_penalty = user_prefs.get("_genre_penalty", {}).get(song["genre"], 1.0)
+    mood_penalty = user_prefs.get("_mood_penalty", {}).get(song["mood"], 1.0)
+    total_score = sum(score_components.values()) * genre_penalty * mood_penalty
+
     return total_score, reasons
 
 
