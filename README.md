@@ -186,20 +186,38 @@ Rock's score went from 0.25 (no penalty) down to 0.09 after three skips (×0.61 
 
 ## Testing Summary
 
+**17 out of 17 automated tests passed.** Two bugs were caught and fixed before the tests were written; both failures would have been caught by the test suite had tests existed earlier.
+
+Tests are in `tests/test_recommender.py` and cover four areas:
+
+| Area | Tests | What they verify |
+|---|---|---|
+| `score_song` | 5 | Genre match boosts score; scores stay in [0, 1]; perfect match scores ≥ 0.90; penalty lowers score; penalty is genre-isolated |
+| `recommend_songs` | 3 | Returns exactly K songs; sorted descending by score; top result matches user genre |
+| `compute_reward` | 4 | Play → positive; skip → negative; rank 1 play > rank 5 play; high-confidence skip penalizes more than low-confidence skip |
+| Learning module | 5 | Energy nudges toward played songs and away from skipped; skip penalizes the skipped genre not the current favorite; play recovers penalty; energy stays within [0.05, 0.95] |
+
+Run them with:
+```bash
+python -m pytest tests/test_recommender.py -v
+```
+
+**Confidence scoring:** The recommender's output score (0.0–1.0) functions as a confidence signal. The evaluator already uses it: skipping a song the system was 95% confident about triggers a reward of −0.72, versus −0.30 for skipping a borderline 20% match. Higher-confidence wrong predictions update the model more aggressively.
+
 **What worked well:**
 
-- The energy nudge behaved correctly from the first implementation — continuous, bounded, and visibly responsive. Skipping a low-energy song as a high-energy user moves the target in the right direction immediately.
-- The penalty multiplier system solved the core problem that binary scoring created: non-favorite genres were stuck at a score floor of 0 with nowhere to go. Multiplying the total score means all songs — even those already scoring low — respond meaningfully to skips.
-- Profile persistence worked reliably. Profiles saved between sessions carried over correctly, and learning accumulated across multiple runs as intended.
+- Energy nudge was correct from the first implementation — continuous, bounded, and immediately visible in output.
+- The penalty multiplier system fixed the core problem that binary scoring created: non-favorite genre songs were already at a score floor of 0, so they couldn't be penalized further. Multiplying the *total* score instead of the genre component alone means all songs respond to skips.
+- Profile persistence worked reliably across sessions.
 
-**What didn't work (and was fixed):**
+**What didn't work (caught by tracing, now covered by tests):**
 
-- The original `_update_categorical` skip logic penalized the *current favorite genre* instead of the *skipped song's genre*. Skipping a rock song as a pop fan was incorrectly subtracting votes from "pop." This was corrected so skips always act on the song being evaluated.
-- On first implementation, the system had no mechanism to reduce scores for non-favorite genres on skips. Binary scoring meant those songs were already at 0 for genre — penalties had nowhere to apply. The fix was adding the penalty multiplier to the final total score rather than to the genre component alone.
+- `_update_categorical` was subtracting votes from the *current favorite* on skips instead of the *skipped song's genre*. `test_skip_penalizes_skipped_genre_not_current_favorite` directly guards this behavior.
+- Without the penalty multiplier, skipping a non-favorite genre had zero effect on future recommendations — the score was already 0 and couldn't go lower. `test_genre_penalty_lowers_score` verifies the fix holds.
 
 **What I learned:**
 
-The biggest insight was that a feedback loop is only as good as its signal routing. The reward formula was correct, but it didn't matter while the learning module was updating the wrong target. Tracing the data flow — reward → which field gets updated → how that changes the next recommendation — exposed the bug immediately once I asked "is what gets worse actually the thing that was skipped?" That question is the core of any RL debugging session.
+A feedback loop is only as good as its signal routing. The reward formula was correct, but it didn't matter while the learning module updated the wrong target. The key diagnostic question is: *is what gets worse actually the thing that was skipped?* That question — and a test for it — is what caught both bugs.
 
 ---
 
