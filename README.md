@@ -6,6 +6,12 @@ The original project, **Cryosonic 1.0**, was a static music recommender that sco
 
 ---
 
+## Video Walkthrough
+
+[Watch the demo walkthrough](https://imgur.com/a/lDgU6Zq)
+
+---
+
 ## Title and Summary
 
 **Cryosonic 1.0 → Cryosonic RL**: A music recommender that learns from your feedback.

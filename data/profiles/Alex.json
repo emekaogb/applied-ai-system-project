@@ -1,32 +1,34 @@
 {
   "favorite_genre": "pop",
   "favorite_mood": "happy",
-  "target_energy": 0.7918,
+  "target_energy": 0.7902,
   "likes_acoustic": false,
   "_vote_counts": {
     "genre": {
-      "pop": 19,
-      "indie pop": 12,
-      "electronic": 12,
-      "synthwave": 12
+      "pop": 23,
+      "indie pop": 16,
+      "electronic": 16,
+      "synthwave": 16,
+      "hip-hop": 2
     },
     "mood": {
-      "happy": 31,
-      "energetic": 12,
-      "moody": 12,
+      "happy": 39,
+      "energetic": 18,
+      "moody": 16,
       "intense": 0
     }
   },
-  "_acoustic_score": -18,
+  "_acoustic_score": -26,
   "_genre_penalty": {
-    "pop": 0.744,
+    "pop": 0.764,
     "indie pop": 1.0,
     "electronic": 1.0,
-    "synthwave": 1.0
+    "synthwave": 1.0,
+    "hip-hop": 1.0
   },
   "_mood_penalty": {
     "happy": 1.0,
-    "intense": 0.614,
+    "intense": 0.522,
     "energetic": 1.0,
     "moody": 1.0
   }
